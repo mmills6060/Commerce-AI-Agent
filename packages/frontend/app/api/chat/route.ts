@@ -1,10 +1,19 @@
 import { randomUUID } from "crypto"
-import { createUIMessageStreamResponse, type UIMessage, type UIMessageChunk } from "ai"
+import { createUIMessageStreamResponse, type UIMessage, type UIMessageChunk, type UIMessagePart } from "ai"
 
 const backendBaseUrl = process.env.BACKEND_URL ?? "http://127.0.0.1:3001"
 const langgraphEndpoint = "/api/langgraph/run"
 
 export const maxDuration = 30
+
+interface TextPart {
+  type: "text"
+  text: string
+}
+
+function isTextPart(part: UIMessagePart): part is TextPart {
+  return part?.type === "text" && typeof (part as any).text === "string"
+}
 
 export async function POST(req: Request) {
   const requestResult = await parseRequest({ req })
@@ -146,9 +155,7 @@ function getLatestUserText({ messages }: { messages: UIMessage[] }): { text: str
     const candidate = messages[index]
     if (!candidate || candidate.role !== "user") continue
 
-    const textParts = candidate.parts?.filter(
-      (part) => part?.type === "text" && typeof part.text === "string"
-    ) ?? []
+    const textParts = candidate.parts?.filter(isTextPart) ?? []
 
     if (textParts.length === 0) continue
 
@@ -178,9 +185,7 @@ function convertUIMessagesToBackendFormat({ messages }: { messages: UIMessage[] 
       let content = ""
       
       if (message.role === "user") {
-        const textParts = message.parts?.filter(
-          (part) => part?.type === "text" && typeof part.text === "string"
-        ) ?? []
+        const textParts = message.parts?.filter(isTextPart) ?? []
         
         content = textParts
           .map((part) => part.text.trim())
@@ -188,9 +193,7 @@ function convertUIMessagesToBackendFormat({ messages }: { messages: UIMessage[] 
           .join("\n")
           .trim()
       } else if (message.role === "assistant") {
-        const textParts = message.parts?.filter(
-          (part) => part?.type === "text" && typeof part.text === "string"
-        ) ?? []
+        const textParts = message.parts?.filter(isTextPart) ?? []
         
         content = textParts
           .map((part) => part.text.trim())
