@@ -71,7 +71,7 @@ apiRouter.post('/chat', async (req, res) => {
       })),
     })
 
-    result.pipeDataStreamToResponse(res)
+    result.pipeTextStreamToResponse(res)
 
   } catch (error) {
     console.error('Chat error:', error)
@@ -123,7 +123,7 @@ apiRouter.post('/langgraph/run', async (req, res) => {
 
     // Filter to only return user and assistant messages, exclude system messages
     const filteredMessages = result.messages.filter(
-      (msg) => msg.role === 'user' || msg.role === 'assistant'
+      (msg: { role: string; content: string }) => msg.role === 'user' || msg.role === 'assistant'
     )
 
     res.json({

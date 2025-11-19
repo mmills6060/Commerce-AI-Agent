@@ -97,19 +97,19 @@ export function createGraph() {
   workflow.addNode('process', processNode)
   workflow.addNode('end', endNode)
 
-  workflow.addEdge(START, 'validate')
-  workflow.addEdge('validate', 'process')
+  workflow.addEdge(START, 'validate' as any)
+  workflow.addEdge('validate' as any, 'process' as any)
   
   workflow.addConditionalEdges(
-    'process',
+    'process' as any,
     shouldContinue,
     {
       continue: 'process',
       end: 'end'
-    }
+    } as any
   )
   
-  workflow.addEdge('end', END)
+  workflow.addEdge('end' as any, END)
 
   return workflow.compile()
 }
