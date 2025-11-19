@@ -11,7 +11,9 @@ interface TextPart {
   text: string
 }
 
-function isTextPart(part: UIMessagePart<Record<string, never>, Record<string, never>>): part is TextPart {
+function isTextPart<TData extends Record<string, unknown>, TTools extends Record<string, unknown>>(
+  part: UIMessagePart<TData, TTools>
+): part is TextPart {
   return part?.type === "text" && typeof (part as any).text === "string"
 }
 
