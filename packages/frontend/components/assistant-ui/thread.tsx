@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Square,
   Send,
+  Loader2,
 } from "lucide-react"
 
 import {
@@ -55,6 +56,10 @@ export const Thread: FC = () => {
                 AssistantMessage,
               }}
             />
+
+            <ThreadPrimitive.If running>
+              <LoadingIndicator />
+            </ThreadPrimitive.If>
 
             <ThreadPrimitive.If empty={false}>
               <div className="aui-thread-viewport-spacer" />
@@ -163,19 +168,16 @@ const ThreadSuggestions: FC = () => {
 
 const UserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root asChild>
+    <MessagePrimitive.Root className="aui-message-user">
       <m.div
-        className="aui-message-user"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
+        className="flex items-start gap-3 justify-end"
       >
-        <MessagePrimitive.Content
-          className="aui-message-user-content"
-          components={{
-            Text: ({ children }) => <div>{children}</div>,
-          }}
-        />
+        <div className="aui-message-user-content">
+          <MessagePrimitive.Content />
+        </div>
       </m.div>
     </MessagePrimitive.Root>
   )
@@ -202,27 +204,47 @@ const EditComposer: FC = () => {
   )
 }
 
-const AssistantMessage: FC = () => {
+const LoadingIndicator: FC = () => {
   return (
-    <MessagePrimitive.Root asChild>
+    <div className="aui-message-assistant">
       <m.div
-        className="aui-message-assistant"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
+        className="flex items-start gap-3"
       >
-        <MessagePrimitive.Content
-          className="aui-message-assistant-content"
-          components={{
-            Text: MarkdownText,
-            tools: {
-              Fallback: ToolFallback,
-            },
-          }}
-        />
-        <MessageError />
-        <AssistantActionBar />
-        <BranchPicker className="aui-branch-picker" />
+        <div className="flex items-center gap-2 p-3">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Thinking...</span>
+        </div>
+      </m.div>
+    </div>
+  )
+}
+
+const AssistantMessage: FC = () => {
+  return (
+    <MessagePrimitive.Root className="aui-message-assistant">
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="flex items-start gap-3"
+      >
+        <div className="flex-1">
+          <MessagePrimitive.Content
+            className="aui-message-assistant-content"
+            components={{
+              Text: MarkdownText,
+              tools: {
+                Fallback: ToolFallback,
+              },
+            }}
+          />
+          <MessageError />
+          <AssistantActionBar />
+          <BranchPicker className="aui-branch-picker" />
+        </div>
       </m.div>
     </MessagePrimitive.Root>
   )
@@ -231,7 +253,7 @@ const AssistantMessage: FC = () => {
 const MessageError: FC = () => {
   return (
     <ErrorPrimitive.Root className="aui-message-error">
-      <ErrorPrimitive.Content />
+      <ErrorPrimitive.Message />
     </ErrorPrimitive.Root>
   )
 }
@@ -266,7 +288,11 @@ const BranchPicker: FC<{ className?: string }> = ({ className }) => {
           <ChevronLeft />
         </TooltipIconButton>
       </BranchPickerPrimitive.Previous>
-      <BranchPickerPrimitive.Info className="aui-branch-picker-info" />
+      <div className="aui-branch-picker-info">
+        <BranchPickerPrimitive.Number />
+        <span className="aui-branch-picker-info-separator">/</span>
+        <BranchPickerPrimitive.Count />
+      </div>
       <BranchPickerPrimitive.Next asChild>
         <TooltipIconButton tooltip="Next" variant="ghost">
           <ChevronRight />

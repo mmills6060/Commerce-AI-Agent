@@ -1,6 +1,6 @@
-import { Product } from "./types"
+import { Product } from '../types/product.js'
 
-export const mockProducts: Product[] = [
+export const products: Product[] = [
   {
     id: "1",
     name: "Acme Drawstring Bag",
@@ -67,7 +67,7 @@ export const mockProducts: Product[] = [
   }
 ]
 
-export function getProduct(id: string): Product | undefined {
-  return mockProducts.find(product => product.id === id)
+export function getProductById(id: string): Product | undefined {
+  return products.find(product => product.id === id)
 }
 

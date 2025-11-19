@@ -1,21 +1,52 @@
 import { StateGraph, END, START } from '@langchain/langgraph'
+import OpenAI from 'openai'
 
 interface GraphState {
   messages: Array<{ role: string; content: string }>
   step: number
 }
 
-function processNode(state: GraphState): Partial<GraphState> {
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
+
+async function processNode(state: GraphState): Promise<Partial<GraphState>> {
   const lastMessage = state.messages[state.messages.length - 1]
   
+  try {
+    const openai = getOpenAIClient()
+    const completion = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      messages: state.messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
+        content: msg.content
+      })),
+    })
+
+    const assistantMessage = completion.choices[0]?.message?.content || 'No response generated'
+    
+    return {
+      messages: [
+        {
+          role: 'assistant',
+          content: assistantMessage
+        }
+      ],
+      step: state.step + 1
+    }
+  } catch (error) {
+    console.error('OpenAI API error:', error)
   return {
     messages: [
       {
         role: 'assistant',
-        content: `Processed: ${lastMessage.content} (step ${state.step})`
+          content: `Error: Failed to get response from AI. ${error instanceof Error ? error.message : 'Unknown error'}`
       }
     ],
     step: state.step + 1
+    }
   }
 }
 
@@ -42,14 +73,8 @@ function shouldContinue(state: GraphState): string {
 }
 
 function endNode(state: GraphState): Partial<GraphState> {
-  return {
-    messages: [
-      {
-        role: 'system',
-        content: 'Graph execution completed.'
-      }
-    ]
-  }
+  // Don't add any extra messages in the end node
+  return {}
 }
 
 export function createGraph() {

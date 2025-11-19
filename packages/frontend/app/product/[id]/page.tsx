@@ -1,6 +1,6 @@
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { getProduct } from "@/lib/mock-data"
+import { fetchProduct } from "@/lib/api"
 import { ShoppingCart } from "lucide-react"
 
 interface ProductPageProps {
@@ -9,7 +9,7 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params
-  const product = getProduct(id)
+  const product = await fetchProduct(id)
 
   if (!product) {
     notFound()

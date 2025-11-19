@@ -28,7 +28,7 @@ export function AssistantModal() {
           sideOffset={8}
           className={cn(
             "w-[90vw] max-w-4xl h-[85vh] max-h-[800px]",
-            "bg-background rounded-lg shadow-lg border z-50",
+            "bg-popover rounded-lg shadow-lg border z-50",
             "flex flex-col overflow-hidden",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -36,8 +36,19 @@ export function AssistantModal() {
             "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
             "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
           )}
+          style={{
+            backgroundColor: "var(--popover)",
+            borderColor: "var(--border)",
+            opacity: 1,
+          }}
         >
-          <div className="flex items-center justify-between p-4 border-b">
+          <div 
+            className="flex items-center justify-between p-4 border-b"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--popover)",
+            }}
+          >
             <h2 className="text-lg font-semibold">AI Assistant</h2>
             <Popover.Close asChild>
               <Button variant="ghost" size="icon" aria-label="Close">
@@ -45,7 +56,12 @@ export function AssistantModal() {
               </Button>
             </Popover.Close>
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div 
+            className="flex-1 overflow-hidden"
+            style={{
+              backgroundColor: "var(--popover)",
+            }}
+          >
             <Thread />
           </div>
         </Popover.Content>

@@ -35,6 +35,20 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## AI Assistant Integration
+
+1. Start the backend LangGraph service from `packages/backend`:
+   ```bash
+   cd ../backend
+   npm install
+   npm run dev
+   ```
+2. Configure the frontend to reach the backend by creating `.env.local` in `packages/frontend`:
+   ```bash
+   BACKEND_URL=http://localhost:3001
+   ```
+3. Restart the Next.js dev server so the assistant modal can proxy `/api/chat` requests through the backend `POST /api/langgraph/run` endpoint.
+
 ## Project Structure
 
 - `app/` - Next.js App Router pages and layouts

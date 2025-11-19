@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/product-card"
-import { mockProducts } from "@/lib/mock-data"
+import { fetchProducts } from "@/lib/api"
 
 interface SearchPageProps {
   searchParams: Promise<{ category?: string; q?: string }>
@@ -10,10 +10,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const category = params.category
   const query = params.q
 
-  let filteredProducts = mockProducts
+  const products = await fetchProducts()
+  let filteredProducts = products
 
   if (category) {
-    filteredProducts = mockProducts.filter(
+    filteredProducts = products.filter(
       (product) => product.category?.toLowerCase() === category.toLowerCase()
     )
   }
