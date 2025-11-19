@@ -11,7 +11,7 @@ interface TextPart {
   text: string
 }
 
-function isTextPart(part: UIMessagePart<Record<string, unknown>, unknown>): part is TextPart {
+function isTextPart(part: UIMessagePart<Record<string, never>, Record<string, never>>): part is TextPart {
   return part?.type === "text" && typeof (part as any).text === "string"
 }
 
