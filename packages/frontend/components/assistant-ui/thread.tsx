@@ -2,7 +2,6 @@
 
 import {
   ArrowDown,
-  ArrowUp,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -27,7 +26,6 @@ import type { FC } from "react"
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react"
 import * as m from "motion/react-m"
 
-import { Button } from "@/components/ui/button"
 import { MarkdownText } from "@/components/assistant-ui/markdown-text"
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback"
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button"
@@ -143,7 +141,7 @@ const ThreadSuggestions: FC = () => {
       ].map((suggestion, index) => (
         <ThreadPrimitive.Suggestion
           key={index}
-          suggestion={suggestion.action}
+          prompt={suggestion.action}
           asChild
         >
           <m.button
@@ -232,15 +230,16 @@ const AssistantMessage: FC = () => {
         className="flex items-start gap-3"
       >
         <div className="flex-1">
-          <MessagePrimitive.Content
-            className="aui-message-assistant-content"
-            components={{
-              Text: MarkdownText,
-              tools: {
-                Fallback: ToolFallback,
-              },
-            }}
-          />
+          <div className="aui-message-assistant-content">
+            <MessagePrimitive.Content
+              components={{
+                Text: MarkdownText,
+                tools: {
+                  Fallback: ToolFallback,
+                },
+              }}
+            />
+          </div>
           <MessageError />
           <AssistantActionBar />
           <BranchPicker className="aui-branch-picker" />

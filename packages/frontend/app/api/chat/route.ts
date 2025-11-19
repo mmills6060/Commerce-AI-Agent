@@ -11,10 +11,10 @@ interface TextPart {
   text: string
 }
 
-function isTextPart<TData extends Record<string, unknown>, TTools extends Record<string, unknown>>(
-  part: UIMessagePart<TData, TTools>
+function isTextPart(
+  part: UIMessagePart<any, any>
 ): part is TextPart {
-  return part?.type === "text" && typeof (part as any).text === "string"
+  return part?.type === "text" && typeof (part as TextPart).text === "string"
 }
 
 export async function POST(req: Request) {
@@ -180,38 +180,32 @@ function convertUIMessagesToBackendFormat({ messages }: { messages: UIMessage[] 
     return []
   }
 
-  return messages
-    .map((message) => {
-      if (!message || !message.role) return null
+  const result: BackendMessage[] = []
 
-      let content = ""
+  for (const message of messages) {
+    if (!message || !message.role) continue
+
+    let content = ""
+    
+    if (message.role === "user" || message.role === "assistant") {
+      const textParts = message.parts?.filter(isTextPart) ?? []
       
-      if (message.role === "user") {
-        const textParts = message.parts?.filter(isTextPart) ?? []
-        
-        content = textParts
-          .map((part) => part.text.trim())
-          .filter(Boolean)
-          .join("\n")
-          .trim()
-      } else if (message.role === "assistant") {
-        const textParts = message.parts?.filter(isTextPart) ?? []
-        
-        content = textParts
-          .map((part) => part.text.trim())
-          .filter(Boolean)
-          .join("\n")
-          .trim()
-      }
+      content = textParts
+        .map((part) => part.text.trim())
+        .filter(Boolean)
+        .join("\n")
+        .trim()
+    }
 
-      if (!content) return null
+    if (!content) continue
 
-      return {
-        role: message.role,
-        content
-      }
+    result.push({
+      role: message.role,
+      content
     })
-    .filter((msg): msg is BackendMessage => msg !== null)
+  }
+
+  return result
 }
 
 function getAssistantText({ graphResult }: { graphResult?: BackendGraphResult }): { text: string | null } {

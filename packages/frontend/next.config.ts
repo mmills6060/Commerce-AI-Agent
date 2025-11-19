@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  typescript: {
+    // Fail build on TypeScript errors (same as deployment)
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
