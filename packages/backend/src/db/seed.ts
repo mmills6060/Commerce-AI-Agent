@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { supabase } from '../lib/supabase.js'
+import type { Database } from '../types/supabase.js'
 
 const seedProducts = [
   {
@@ -79,9 +80,9 @@ async function seedDatabase() {
       return
     }
 
-    const { error: insertError } = await supabase
-      .from('products')
-      .insert(seedProducts as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: insertError } = await (supabase.from('products') as any)
+      .insert(seedProducts as Database['public']['Tables']['products']['Insert'][])
       .select()
 
     if (insertError) {

@@ -22,7 +22,7 @@ export async function* handleStreamingChat(messages: Array<{ role: string; conte
     interface ToolCall {
       tool: string
       status: string
-      output?: any
+      output?: unknown
     }
     const toolCalls: ToolCall[] = []
     

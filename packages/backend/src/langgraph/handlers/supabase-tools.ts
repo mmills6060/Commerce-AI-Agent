@@ -53,8 +53,18 @@ export const searchProducts = tool(
         return 'No products found matching your criteria.'
       }
       
+      interface ProductRow {
+        id: string
+        name: string
+        currency: string
+        price: number
+        category: string | null
+        in_stock: boolean
+        description: string | null
+      }
+
       // Format the results
-      const formattedResults = data.map((product: any) => ({
+      const formattedResults = data.map((product: ProductRow) => ({
         id: product.id,
         name: product.name,
         price: `${product.currency}${product.price}`,
@@ -117,7 +127,17 @@ export const searchOrders = tool(
         return 'No orders found matching your criteria.'
       }
       
-      const formattedResults = data.map((order: any) => ({
+      interface OrderRow {
+        id: string
+        user_id: string | null
+        currency: string
+        total: number
+        status: string
+        items: unknown[]
+        created_at: string
+      }
+
+      const formattedResults = data.map((order: OrderRow) => ({
         id: order.id,
         userId: order.user_id,
         total: `${order.currency}${order.total}`,
@@ -160,7 +180,21 @@ export const getProductDetails = tool(
         return 'Product not found.'
       }
       
-      const product = data as any
+      interface ProductRow {
+        id: string
+        name: string
+        description: string | null
+        currency: string
+        price: number
+        category: string | null
+        in_stock: boolean
+        images: string[] | null
+        image: string | null
+        created_at: string
+        updated_at: string
+      }
+
+      const product = data as ProductRow
       
       return JSON.stringify({
         id: product.id,

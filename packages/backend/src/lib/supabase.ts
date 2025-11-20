@@ -56,8 +56,11 @@ function getSupabaseInstance(): SupabaseClient<Database> {
       supabaseInstance = initializeSupabase()
     } catch (error) {
       if (error instanceof Error) {
+        // eslint-disable-next-line no-console
         console.error('\n❌ Supabase Configuration Error:\n')
+        // eslint-disable-next-line no-console
         console.error(error.message)
+        // eslint-disable-next-line no-console
         console.error('\n📖 See QUICK_START.md for setup instructions.\n')
       }
       throw error
@@ -70,7 +73,7 @@ function getSupabaseInstance(): SupabaseClient<Database> {
 export const supabase = new Proxy({} as SupabaseClient<Database>, {
   get(_target, prop) {
     const instance = getSupabaseInstance()
-    return (instance as any)[prop]
+    return (instance as Record<string | symbol, unknown>)[prop]
   }
 }) as SupabaseClient<Database>
 

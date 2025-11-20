@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase.js'
+import type { Database } from '../types/supabase.js'
 
 export interface Order {
   id: string
@@ -25,7 +26,7 @@ interface SupabaseOrder {
   total: number
   currency: string
   status: string
-  items: any
+  items: OrderItem[]
   created_at: string
   updated_at: string
 }
@@ -44,15 +45,15 @@ function mapToOrder(dbOrder: SupabaseOrder): Order {
 }
 
 export async function createOrder(order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
-  const { data, error } = await supabase
-    .from('orders')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('orders') as any)
     .insert({
       user_id: order.userId || null,
       total: order.total,
       currency: order.currency,
       status: order.status,
       items: order.items
-    } as any)
+    } as Database['public']['Tables']['orders']['Insert'])
     .select()
     .single()
 
@@ -95,9 +96,9 @@ export async function getOrdersByUserId(userId: string): Promise<Order[]> {
 }
 
 export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order | null> {
-  const { data, error } = await (supabase
-    .from('orders') as any)
-    .update({ status })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('orders') as any)
+    .update({ status } as Database['public']['Tables']['orders']['Update'])
     .eq('id', id)
     .select()
     .single()

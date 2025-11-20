@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase.js'
+import type { Database } from '../types/supabase.js'
 
 export interface ChatSession {
   id: string
@@ -17,7 +18,7 @@ export interface ChatMessage {
 interface SupabaseChatSession {
   id: string
   user_id: string | null
-  messages: any
+  messages: ChatMessage[]
   created_at: string
   updated_at: string
 }
@@ -33,12 +34,12 @@ function mapToChatSession(dbSession: SupabaseChatSession): ChatSession {
 }
 
 export async function createChatSession(userId?: string, initialMessages: ChatMessage[] = []): Promise<ChatSession> {
-  const { data, error } = await supabase
-    .from('chat_sessions')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('chat_sessions') as any)
     .insert({
       user_id: userId || null,
       messages: initialMessages
-    } as any)
+    } as Database['public']['Tables']['chat_sessions']['Insert'])
     .select()
     .single()
 
@@ -81,9 +82,9 @@ export async function getChatSessionsByUserId(userId: string): Promise<ChatSessi
 }
 
 export async function updateChatSession(id: string, messages: ChatMessage[]): Promise<ChatSession | null> {
-  const { data, error } = await (supabase
-    .from('chat_sessions') as any)
-    .update({ messages })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('chat_sessions') as any)
+    .update({ messages } as Database['public']['Tables']['chat_sessions']['Update'])
     .eq('id', id)
     .select()
     .single()

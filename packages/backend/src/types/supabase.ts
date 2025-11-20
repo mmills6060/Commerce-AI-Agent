@@ -1,3 +1,18 @@
+// Define types locally to avoid circular dependencies
+export interface OrderItem {
+  productId: string
+  name: string
+  price: number
+  quantity: number
+  image?: string
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp?: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -49,7 +64,7 @@ export interface Database {
           total: number
           currency: string
           status: string
-          items: any
+          items: OrderItem[]
           created_at: string
           updated_at: string
         }
@@ -59,7 +74,7 @@ export interface Database {
           total: number
           currency?: string
           status?: string
-          items: any
+          items: OrderItem[]
           created_at?: string
           updated_at?: string
         }
@@ -69,7 +84,7 @@ export interface Database {
           total?: number
           currency?: string
           status?: string
-          items?: any
+          items?: OrderItem[]
           created_at?: string
           updated_at?: string
         }
@@ -78,34 +93,34 @@ export interface Database {
         Row: {
           id: string
           user_id: string | null
-          messages: any
+          messages: ChatMessage[]
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id?: string | null
-          messages: any
+          messages: ChatMessage[]
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string | null
-          messages?: any
+          messages?: ChatMessage[]
           created_at?: string
           updated_at?: string
         }
       }
     }
     Views: {
-      [_ in never]: never
+      [key: string]: never
     }
     Functions: {
-      [_ in never]: never
+      [key: string]: never
     }
     Enums: {
-      [_ in never]: never
+      [key: string]: never
     }
   }
 }

@@ -235,12 +235,28 @@ apiRouter.post('/chat', async (req, res) => {
       })
     }
 
-    const transformedMessages = messages.map((msg: any) => {
+    interface MessagePart {
+      text?: string
+      type?: string
+    }
+
+    interface IncomingMessage {
+      role?: string
+      content?: string | MessagePart[] | { text?: string; value?: string }
+      parts?: Array<string | MessagePart>
+    }
+
+    interface TransformedMessage {
+      role: string
+      content: string
+    }
+
+    const transformedMessages = messages.map((msg: IncomingMessage): TransformedMessage | null => {
       let content = ''
       
       if (Array.isArray(msg.parts)) {
         content = msg.parts
-          .map((part: any) => {
+          .map((part: string | MessagePart) => {
             if (typeof part === 'string') return part
             if (part.text) return part.text
             if (part.type === 'text' && part.text) return part.text
@@ -253,7 +269,7 @@ apiRouter.post('/chat', async (req, res) => {
         content = msg.content
       } else if (Array.isArray(msg.content)) {
         content = msg.content
-          .map((part: any) => {
+          .map((part: string | MessagePart) => {
             if (typeof part === 'string') return part
             if (part.text) return part.text
             if (part.type === 'text' && part.text) return part.text
@@ -265,11 +281,13 @@ apiRouter.post('/chat', async (req, res) => {
         content = msg.content.text || msg.content.value || ''
       }
 
-      return {
+      const transformed: TransformedMessage = {
         role: msg.role || 'user',
         content: content || ''
       }
-    }).filter((msg: any) => msg.content.trim() !== '')
+      
+      return transformed.content.trim() !== '' ? transformed : null
+    }).filter((msg): msg is TransformedMessage => msg !== null)
     
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
     res.setHeader('Cache-Control', 'no-cache')

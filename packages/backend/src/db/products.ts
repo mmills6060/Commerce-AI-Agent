@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase.js'
 import type { Product } from '../types/product.js'
+import type { Database } from '../types/supabase.js'
 
 interface SupabaseProduct {
   id: string
@@ -61,8 +62,8 @@ export async function getProductById(id: string): Promise<Product | null> {
 }
 
 export async function createProduct(product: Omit<Product, 'id'>): Promise<Product> {
-  const { data, error } = await supabase
-    .from('products')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('products') as any)
     .insert({
       name: product.name,
       description: product.description,
@@ -72,7 +73,7 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
       images: product.images,
       category: product.category,
       in_stock: product.inStock
-    } as any)
+    } as Database['public']['Tables']['products']['Insert'])
     .select()
     .single()
 
@@ -84,7 +85,7 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
-  const dbUpdates: any = {}
+  const dbUpdates: Database['public']['Tables']['products']['Update'] = {}
   
   if (updates.name !== undefined) dbUpdates.name = updates.name
   if (updates.description !== undefined) dbUpdates.description = updates.description
@@ -95,8 +96,8 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
   if (updates.category !== undefined) dbUpdates.category = updates.category
   if (updates.inStock !== undefined) dbUpdates.in_stock = updates.inStock
 
-  const { data, error } = await (supabase
-    .from('products') as any)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('products') as any)
     .update(dbUpdates)
     .eq('id', id)
     .select()
