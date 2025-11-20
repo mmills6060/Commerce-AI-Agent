@@ -1,6 +1,7 @@
 import { Product } from "./types"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+// Use server-side env var for SSR, fallback to NEXT_PUBLIC for client-side
+const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 export async function fetchProducts(): Promise<Product[]> {
   try {
