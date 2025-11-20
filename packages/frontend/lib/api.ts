@@ -5,17 +5,33 @@ const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || '
 
 export async function fetchProducts(): Promise<Product[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/products`, {
-      cache: 'no-store'
+    const url = `${API_BASE_URL}/products`
+    console.log('[fetchProducts] Attempting to fetch from:', API_BASE_URL ? `${API_BASE_URL}/products` : 'URL not configured')
+    
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     })
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch products: ${response.statusText}`)
+      const errorText = await response.text().catch(() => response.statusText)
+      console.error(`[fetchProducts] HTTP ${response.status}:`, errorText)
+      throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`)
     }
     
     return await response.json()
   } catch (error) {
-    console.error('Error fetching products:', error)
+    if (error instanceof Error) {
+      console.error('[fetchProducts] Error:', error.message)
+      // Log the actual URL being used (helpful for debugging)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[fetchProducts] API URL:', API_BASE_URL)
+      }
+    } else {
+      console.error('[fetchProducts] Unknown error:', error)
+    }
     throw error
   }
 }
