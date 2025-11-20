@@ -7,6 +7,8 @@ interface ProductPageProps {
   params: Promise<{ id: string }>
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params
   const product = await fetchProduct(id)
