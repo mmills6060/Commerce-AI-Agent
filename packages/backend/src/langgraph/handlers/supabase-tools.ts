@@ -56,7 +56,7 @@ export const searchProducts = tool(
       }
       
       // Format the results
-      const formattedResults = data.map(product => ({
+      const formattedResults = data.map((product: any) => ({
         id: product.id,
         name: product.name,
         price: `${product.currency}${product.price}`,
@@ -122,7 +122,7 @@ export const searchOrders = tool(
         return 'No orders found matching your criteria.'
       }
       
-      const formattedResults = data.map(order => ({
+      const formattedResults = data.map((order: any) => ({
         id: order.id,
         userId: order.user_id,
         total: `${order.currency}${order.total}`,
@@ -168,16 +168,18 @@ export const getProductDetails = tool(
         return 'Product not found.'
       }
       
+      const product = data as any
+      
       return JSON.stringify({
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        price: `${data.currency}${data.price}`,
-        category: data.category || 'Uncategorized',
-        inStock: data.in_stock,
-        images: data.images || [data.image].filter(Boolean),
-        createdAt: new Date(data.created_at).toLocaleString(),
-        updatedAt: new Date(data.updated_at).toLocaleString()
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: `${product.currency}${product.price}`,
+        category: product.category || 'Uncategorized',
+        inStock: product.in_stock,
+        images: product.images || [product.image].filter(Boolean),
+        createdAt: new Date(product.created_at).toLocaleString(),
+        updatedAt: new Date(product.updated_at).toLocaleString()
       }, null, 2)
     } catch (error) {
       console.error('[Tool] Unexpected error:', error)

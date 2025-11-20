@@ -1,4 +1,4 @@
-import { createAgent, tool } from 'langchain'
+import { createAgent, tool, type ReactAgent } from 'langchain'
 import { ChatOpenAI } from '@langchain/openai'
 import type { BaseMessage } from '@langchain/core/messages'
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages'
@@ -24,7 +24,7 @@ export function getChatModel() {
 }
 
 // Create the commerce agent using createAgent API
-export function createCommerceAgent() {
+export function createCommerceAgent(): ReactAgent {
   const model = getChatModel()
   
   // Create agent with Supabase search tools

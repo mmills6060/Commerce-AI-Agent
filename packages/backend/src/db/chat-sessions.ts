@@ -38,7 +38,7 @@ export async function createChatSession(userId?: string, initialMessages: ChatMe
     .insert({
       user_id: userId || null,
       messages: initialMessages
-    })
+    } as any)
     .select()
     .single()
 
@@ -84,8 +84,8 @@ export async function getChatSessionsByUserId(userId: string): Promise<ChatSessi
 }
 
 export async function updateChatSession(id: string, messages: ChatMessage[]): Promise<ChatSession | null> {
-  const { data, error } = await supabase
-    .from('chat_sessions')
+  const { data, error } = await (supabase
+    .from('chat_sessions') as any)
     .update({ messages })
     .eq('id', id)
     .select()

@@ -1,6 +1,6 @@
 import type { BaseMessage } from '@langchain/core/messages'
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages'
-import { createCommerceAgent, convertToBaseMessage, extractMessageContent, getChatModel } from '../agent'
+import { createCommerceAgent, convertToBaseMessage, extractMessageContent, getChatModel } from '../agent.js'
 
 export interface StreamingState {
   messages: Array<{ role: string; content: string }>
@@ -26,7 +26,12 @@ export async function* handleStreamingChat(messages: Array<{ role: string; conte
     
     let fullContent = ''
     let chunkCount = 0
-    let toolCalls = []
+    interface ToolCall {
+      tool: string
+      status: string
+      output?: any
+    }
+    const toolCalls: ToolCall[] = []
     
     for await (const event of eventStream) {
       // Handle different event types

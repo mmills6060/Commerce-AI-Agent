@@ -88,7 +88,7 @@ async function seedDatabase() {
     console.log(`Inserting ${seedProducts.length} products...`)
     const { data: insertedProducts, error: insertError } = await supabase
       .from('products')
-      .insert(seedProducts)
+      .insert(seedProducts as any)
       .select()
 
     if (insertError) {

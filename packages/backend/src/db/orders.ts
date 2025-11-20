@@ -52,7 +52,7 @@ export async function createOrder(order: Omit<Order, 'id' | 'createdAt' | 'updat
       currency: order.currency,
       status: order.status,
       items: order.items
-    })
+    } as any)
     .select()
     .single()
 
@@ -98,8 +98,8 @@ export async function getOrdersByUserId(userId: string): Promise<Order[]> {
 }
 
 export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order | null> {
-  const { data, error } = await supabase
-    .from('orders')
+  const { data, error } = await (supabase
+    .from('orders') as any)
     .update({ status })
     .eq('id', id)
     .select()

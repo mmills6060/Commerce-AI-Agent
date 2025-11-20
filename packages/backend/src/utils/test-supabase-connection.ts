@@ -59,7 +59,7 @@ async function testSupabaseConnection() {
     } else {
       console.log(`✓ Found ${products.length} products`)
       console.log('  Sample products:')
-      products.forEach((p, i) => {
+      products.forEach((p: any, i) => {
         console.log(`  ${i + 1}. ${p.name} - $${p.price}`)
       })
     }

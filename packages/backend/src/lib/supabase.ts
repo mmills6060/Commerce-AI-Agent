@@ -50,23 +50,29 @@ function initializeSupabase(): SupabaseClient<Database> {
 }
 
 // Lazy initialization - only create client when first accessed
+function getSupabaseInstance(): SupabaseClient<Database> {
+  if (!supabaseInstance) {
+    try {
+      supabaseInstance = initializeSupabase()
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('\n❌ Supabase Configuration Error:\n')
+        console.error(error.message)
+        console.error('\n📖 See QUICK_START.md for setup instructions.\n')
+      }
+      throw error
+    }
+  }
+  return supabaseInstance
+}
+
+// Export supabase as a Proxy that preserves types
 export const supabase = new Proxy({} as SupabaseClient<Database>, {
   get(_target, prop) {
-    if (!supabaseInstance) {
-      try {
-        supabaseInstance = initializeSupabase()
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error('\n❌ Supabase Configuration Error:\n')
-          console.error(error.message)
-          console.error('\n📖 See QUICK_START.md for setup instructions.\n')
-        }
-        throw error
-      }
-    }
-    return (supabaseInstance as any)[prop]
+    const instance = getSupabaseInstance()
+    return (instance as any)[prop]
   }
-})
+}) as SupabaseClient<Database>
 
 // Client for user-specific operations (uses anon key)
 export function createSupabaseClient() {

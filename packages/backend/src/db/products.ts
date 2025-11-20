@@ -74,7 +74,7 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
       images: product.images,
       category: product.category,
       in_stock: product.inStock
-    })
+    } as any)
     .select()
     .single()
 
@@ -98,8 +98,8 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
   if (updates.category !== undefined) dbUpdates.category = updates.category
   if (updates.inStock !== undefined) dbUpdates.in_stock = updates.inStock
 
-  const { data, error } = await supabase
-    .from('products')
+  const { data, error } = await (supabase
+    .from('products') as any)
     .update(dbUpdates)
     .eq('id', id)
     .select()
