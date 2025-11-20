@@ -1,8 +1,7 @@
-import { createAgent, tool, type ReactAgent } from 'langchain'
+import { createAgent, type ReactAgent } from 'langchain'
 import { ChatOpenAI } from '@langchain/openai'
 import type { BaseMessage } from '@langchain/core/messages'
-import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages'
-import * as z from 'zod'
+import { HumanMessage, AIMessage } from '@langchain/core/messages'
 import { searchProducts, searchOrders, getProductDetails } from './handlers/supabase-tools.js'
 
 // Initialize the OpenAI model

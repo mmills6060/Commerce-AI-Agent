@@ -72,36 +72,31 @@ async function seedDatabase() {
       .limit(1)
 
     if (checkError) {
-      console.error('Error checking existing products:', checkError)
-      throw checkError
+      throw new Error(`Failed to check existing products: ${checkError.message}`)
     }
 
     if (existingProducts && existingProducts.length > 0) {
-      console.log('Database already contains products. Skipping seed.')
       return
     }
 
-    const { data: insertedProducts, error: insertError } = await supabase
+    const { error: insertError } = await supabase
       .from('products')
       .insert(seedProducts as any)
       .select()
 
     if (insertError) {
-      throw insertError
+      throw new Error(`Failed to insert products: ${insertError.message}`)
     }
 
   } catch (error) {
-    process.exit(1)
+    throw new Error(`Failed to seed database: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   seedDatabase()
-    .then(() => {
-      process.exit(0)
-    })
     .catch((error) => {
-      process.exit(1)
+      throw new Error(`Failed to seed database: ${error instanceof Error ? error.message : 'Unknown error'}`)
     })
 }
 

@@ -43,8 +43,7 @@ export async function createChatSession(userId?: string, initialMessages: ChatMe
     .single()
 
   if (error) {
-    console.error('Error creating chat session:', error)
-    throw new Error('Failed to create chat session')
+    throw new Error(`Failed to create chat session: ${error.message}`)
   }
 
   return mapToChatSession(data)
@@ -61,8 +60,7 @@ export async function getChatSessionById(id: string): Promise<ChatSession | null
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error fetching chat session:', error)
-    throw new Error('Failed to fetch chat session')
+    throw new Error(`Failed to fetch chat session: ${error.message}`)
   }
 
   return data ? mapToChatSession(data) : null
@@ -76,8 +74,7 @@ export async function getChatSessionsByUserId(userId: string): Promise<ChatSessi
     .order('updated_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching chat sessions:', error)
-    throw new Error('Failed to fetch chat sessions')
+    throw new Error(`Failed to fetch chat sessions: ${error.message}`)
   }
 
   return (data || []).map(mapToChatSession)
@@ -95,8 +92,7 @@ export async function updateChatSession(id: string, messages: ChatMessage[]): Pr
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error updating chat session:', error)
-    throw new Error('Failed to update chat session')
+    throw new Error(`Failed to update chat session: ${error.message}`)
   }
 
   return data ? mapToChatSession(data) : null
@@ -109,8 +105,7 @@ export async function deleteChatSession(id: string): Promise<boolean> {
     .eq('id', id)
 
   if (error) {
-    console.error('Error deleting chat session:', error)
-    throw new Error('Failed to delete chat session')
+    throw new Error(`Failed to delete chat session: ${error.message}`)
   }
 
   return true

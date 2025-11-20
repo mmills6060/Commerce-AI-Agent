@@ -57,8 +57,7 @@ export async function createOrder(order: Omit<Order, 'id' | 'createdAt' | 'updat
     .single()
 
   if (error) {
-    console.error('Error creating order:', error)
-    throw new Error('Failed to create order')
+    throw new Error(`Failed to create order: ${error.message}`)
   }
 
   return mapToOrder(data)
@@ -75,8 +74,7 @@ export async function getOrderById(id: string): Promise<Order | null> {
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error fetching order:', error)
-    throw new Error('Failed to fetch order')
+    throw new Error(`Failed to fetch order: ${error.message}`)
   }
 
   return data ? mapToOrder(data) : null
@@ -90,8 +88,7 @@ export async function getOrdersByUserId(userId: string): Promise<Order[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching orders:', error)
-    throw new Error('Failed to fetch orders')
+    throw new Error(`Failed to fetch orders: ${error.message}`)
   }
 
   return (data || []).map(mapToOrder)
@@ -109,8 +106,7 @@ export async function updateOrderStatus(id: string, status: Order['status']): Pr
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error updating order status:', error)
-    throw new Error('Failed to update order status')
+    throw new Error(`Failed to update order status: ${error.message}`)
   }
 
   return data ? mapToOrder(data) : null
@@ -123,8 +119,7 @@ export async function getAllOrders(): Promise<Order[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching all orders:', error)
-    throw new Error('Failed to fetch orders')
+    throw new Error(`Failed to fetch all orders: ${error.message}`)
   }
 
   return (data || []).map(mapToOrder)

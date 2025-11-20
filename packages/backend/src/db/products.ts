@@ -37,7 +37,7 @@ export async function getAllProducts(): Promise<Product[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    throw new Error('Failed to fetch products')
+    throw new Error(`Failed to fetch products: ${error.message}`)
   }
 
   return (data || []).map(mapToProduct)
@@ -54,7 +54,7 @@ export async function getProductById(id: string): Promise<Product | null> {
     if (error.code === 'PGRST116') {
       return null
     }
-    throw new Error('Failed to fetch product')
+    throw new Error(`Failed to fetch product: ${error.message}`)
   }
 
   return data ? mapToProduct(data) : null
@@ -77,7 +77,7 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
     .single()
 
   if (error) {
-    throw new Error('Failed to create product')
+    throw new Error(`Failed to create product: ${error.message}`)
   }
 
   return mapToProduct(data)
@@ -106,7 +106,7 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
     if (error.code === 'PGRST116') {
       return null
     }
-    throw new Error('Failed to update product')
+    throw new Error(`Failed to update product: ${error.message}`)
   }
 
   return data ? mapToProduct(data) : null
@@ -119,7 +119,7 @@ export async function deleteProduct(id: string): Promise<boolean> {
     .eq('id', id)
 
   if (error) {
-    throw new Error('Failed to delete product')
+    throw new Error(`Failed to delete product: ${error.message}`)
   }
 
   return true
@@ -134,7 +134,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    throw new Error('Failed to search products')
+    throw new Error(`Failed to search products: ${error.message}`)
   }
 
   return (data || []).map(mapToProduct)
@@ -149,7 +149,7 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     .order('created_at', { ascending: false })
 
   if (error) {
-    throw new Error('Failed to fetch products by category')
+    throw new Error(`Failed to fetch products by category: ${error.message}`)
   }
 
   return (data || []).map(mapToProduct)

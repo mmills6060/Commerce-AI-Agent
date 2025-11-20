@@ -19,7 +19,6 @@ export async function* handleStreamingChat(messages: Array<{ role: string; conte
     })
     
     let fullContent = ''
-    let chunkCount = 0
     interface ToolCall {
       tool: string
       status: string
@@ -32,7 +31,6 @@ export async function* handleStreamingChat(messages: Array<{ role: string; conte
         const content = event.data?.chunk?.content
         
         if (typeof content === 'string' && content) {
-          chunkCount++
           fullContent += content
           
           yield {
