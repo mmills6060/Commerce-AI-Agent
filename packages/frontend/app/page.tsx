@@ -1,10 +1,11 @@
 import { ProductCard } from "@/components/product-card"
 import { fetchProducts } from "@/lib/api"
+import { Product } from "@/lib/types"
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  let products
+  let products: Product[] = []
   let error: string | null = null
 
   try {
