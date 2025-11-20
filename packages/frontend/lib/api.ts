@@ -1,7 +1,8 @@
 import { Product } from "./types"
 
 // Use server-side env var for SSR, fallback to NEXT_PUBLIC for client-side
-const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+// API_URL should include /api (e.g., https://backend.com/api or http://localhost:3001/api)
+const API_BASE_URL = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api').replace(/\/$/, '')
 
 export async function fetchProducts(): Promise<Product[]> {
   try {
@@ -16,19 +17,38 @@ export async function fetchProducts(): Promise<Product[]> {
     })
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => response.statusText)
-      console.error(`[fetchProducts] HTTP ${response.status}:`, errorText)
-      throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`)
+      let errorMessage = response.statusText
+      let errorDetails = ''
+      
+      try {
+        const errorData = await response.json()
+        errorDetails = errorData.message || errorData.error || ''
+        if (errorDetails) {
+          errorMessage = `${response.statusText}: ${errorDetails}`
+        }
+      } catch {
+        // If response is not JSON, try to get text
+        const errorText = await response.text().catch(() => '')
+        if (errorText) {
+          errorDetails = errorText
+          errorMessage = `${response.statusText}: ${errorText.substring(0, 200)}`
+        }
+      }
+      
+      console.error(`[fetchProducts] HTTP ${response.status}:`, errorMessage)
+      if (errorDetails) {
+        console.error('[fetchProducts] Error details:', errorDetails)
+      }
+      
+      throw new Error(`Failed to fetch products: ${errorMessage}`)
     }
     
     return await response.json()
   } catch (error) {
     if (error instanceof Error) {
       console.error('[fetchProducts] Error:', error.message)
-      // Log the actual URL being used (helpful for debugging)
-      if (process.env.NODE_ENV === 'development') {
-        console.error('[fetchProducts] API URL:', API_BASE_URL)
-      }
+      // Always log the API URL in production for debugging
+      console.error('[fetchProducts] API URL:', API_BASE_URL || 'not set')
     } else {
       console.error('[fetchProducts] Unknown error:', error)
     }
