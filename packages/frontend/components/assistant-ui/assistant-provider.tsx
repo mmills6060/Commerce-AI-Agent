@@ -12,7 +12,6 @@ import { ReactNode } from "react"
 const LangGraphAdapter: ChatModelAdapter = {
   async *run({ messages, abortSignal }) {
     try {
-      console.log('[LangGraphAdapter] Sending messages:', messages)
       
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -52,12 +51,10 @@ const LangGraphAdapter: ChatModelAdapter = {
         
         if (done) break
 
-        // Decode with stream option to handle multi-byte characters
         const chunk = decoder.decode(value, { stream: true })
         buffer += chunk
         const lines = buffer.split('\n')
 
-        // Keep the last line in buffer if it's incomplete
         if (!buffer.endsWith('\n')) {
           buffer = lines.pop() || ''
         } else {
@@ -71,9 +68,7 @@ const LangGraphAdapter: ChatModelAdapter = {
               
               if (data.type === 'delta') {
                 fullText += data.content
-                console.log('[LangGraphAdapter] Received delta:', data.content, 'Total so far:', fullText)
                 
-                // Yield the accumulated text so far
                 const result: ChatModelRunResult = {
                   content: [{
                     type: "text",
@@ -83,20 +78,14 @@ const LangGraphAdapter: ChatModelAdapter = {
                 yield result
               } else if (data.type === 'error') {
                 throw new Error(data.error)
-              } else if (data.type === 'done') {
-                console.log('[LangGraphAdapter] Stream complete. Final text:', data.content)
               }
             } catch (e) {
-              // Ignore parse errors for empty lines
-              if (line.trim() !== 'data: ') {
-                console.error('Failed to parse SSE line:', line)
-              }
+              console.error('Failed to parse SSE line:', line, e)
             }
           }
         }
       }
 
-      // Process any remaining buffer
       if (buffer.trim()) {
         if (buffer.startsWith('data: ')) {
           try {
@@ -105,18 +94,16 @@ const LangGraphAdapter: ChatModelAdapter = {
               fullText += data.content
             }
           } catch (e) {
-            console.error('Failed to parse final buffer:', buffer)
+            console.error('Failed to parse final buffer:', buffer, e)
           }
         }
       }
 
-      // Flush decoder to get any remaining bytes
       const remaining = decoder.decode(undefined, { stream: false })
       if (remaining) {
-        console.warn('Decoder had remaining bytes:', remaining)
+        console.error('Decoder had remaining bytes:', remaining)
       }
 
-      // Ensure we return final content if not already sent
       if (fullText) {
         const result: ChatModelRunResult = {
           content: [{
@@ -127,8 +114,6 @@ const LangGraphAdapter: ChatModelAdapter = {
         yield result
       }
     } catch (error) {
-      console.error("LangGraph adapter error:", error)
-      
       const result: ChatModelRunResult = {
         content: [{
           type: "text",

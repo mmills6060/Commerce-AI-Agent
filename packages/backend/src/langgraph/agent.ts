@@ -13,7 +13,6 @@ export function getChatModel() {
     throw new Error('OPENAI_API_KEY is not set in environment variables')
   }
   
-  console.log('[LangChain Agent] OpenAI client initialized with API key:', apiKey.substring(0, 10) + '...')
   
   return new ChatOpenAI({
     openAIApiKey: apiKey,
@@ -27,7 +26,6 @@ export function getChatModel() {
 export function createCommerceAgent(): ReactAgent {
   const model = getChatModel()
   
-  // Create agent with Supabase search tools
   const agent = createAgent({
     model,
     tools: [searchProducts, searchOrders, getProductDetails],
@@ -46,19 +44,16 @@ When searching, be specific and use appropriate filters to give users the most r
   return agent
 }
 
-// Convert message format from { role, content } to BaseMessage
 export function convertToBaseMessage(message: { role: string; content: string }): BaseMessage {
   if (message.role === 'user') {
     return new HumanMessage(message.content)
   } else if (message.role === 'assistant') {
     return new AIMessage(message.content)
   } else {
-    // Default to HumanMessage for unknown roles
     return new HumanMessage(message.content)
   }
 }
 
-// Helper to extract content from BaseMessage
 export function extractMessageContent(message: BaseMessage): { role: string; content: string } {
   const role = message._getType() === 'human' ? 'user' : 
                message._getType() === 'ai' ? 'assistant' : 

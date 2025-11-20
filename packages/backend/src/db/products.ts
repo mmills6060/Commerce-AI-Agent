@@ -37,7 +37,6 @@ export async function getAllProducts(): Promise<Product[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching products:', error)
     throw new Error('Failed to fetch products')
   }
 
@@ -55,7 +54,6 @@ export async function getProductById(id: string): Promise<Product | null> {
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error fetching product:', error)
     throw new Error('Failed to fetch product')
   }
 
@@ -79,7 +77,6 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
     .single()
 
   if (error) {
-    console.error('Error creating product:', error)
     throw new Error('Failed to create product')
   }
 
@@ -109,7 +106,6 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
     if (error.code === 'PGRST116') {
       return null
     }
-    console.error('Error updating product:', error)
     throw new Error('Failed to update product')
   }
 
@@ -123,7 +119,6 @@ export async function deleteProduct(id: string): Promise<boolean> {
     .eq('id', id)
 
   if (error) {
-    console.error('Error deleting product:', error)
     throw new Error('Failed to delete product')
   }
 
@@ -139,7 +134,6 @@ export async function searchProducts(query: string): Promise<Product[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error searching products:', error)
     throw new Error('Failed to search products')
   }
 
@@ -155,7 +149,6 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching products by category:', error)
     throw new Error('Failed to fetch products by category')
   }
 

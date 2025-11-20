@@ -14,7 +14,6 @@ const searchProductsSchema = z.object({
 export const searchProducts = tool(
   async ({ searchTerm, category, minPrice, maxPrice, inStock, limit }: z.infer<typeof searchProductsSchema>) => {
     try {
-      console.log('[Tool] Searching products with params:', { searchTerm, category, minPrice, maxPrice, inStock, limit })
       
       let query = supabase.from('products').select('*')
       
@@ -47,7 +46,6 @@ export const searchProducts = tool(
       const { data, error } = await query
       
       if (error) {
-        console.error('[Tool] Search error:', error)
         return `Error searching products: ${error.message}`
       }
       
@@ -67,7 +65,6 @@ export const searchProducts = tool(
       
       return JSON.stringify(formattedResults, null, 2)
     } catch (error) {
-      console.error('[Tool] Unexpected error:', error)
       return `Unexpected error while searching: ${error}`
     }
   },
@@ -89,7 +86,6 @@ const searchOrdersSchema = z.object({
 export const searchOrders = tool(
   async ({ userId, status, minTotal, maxTotal, limit }: z.infer<typeof searchOrdersSchema>) => {
     try {
-      console.log('[Tool] Searching orders with params:', { userId, status, minTotal, maxTotal, limit })
       
       let query = supabase.from('orders').select('*')
       
@@ -114,7 +110,6 @@ export const searchOrders = tool(
       const { data, error } = await query
       
       if (error) {
-        console.error('[Tool] Search error:', error)
         return `Error searching orders: ${error.message}`
       }
       
@@ -133,7 +128,6 @@ export const searchOrders = tool(
       
       return JSON.stringify(formattedResults, null, 2)
     } catch (error) {
-      console.error('[Tool] Unexpected error:', error)
       return `Unexpected error while searching: ${error}`
     }
   },
@@ -151,7 +145,6 @@ const getProductDetailsSchema = z.object({
 export const getProductDetails = tool(
   async ({ productId }: z.infer<typeof getProductDetailsSchema>) => {
     try {
-      console.log('[Tool] Getting product details for ID:', productId)
       
       const { data, error } = await supabase
         .from('products')
@@ -160,7 +153,6 @@ export const getProductDetails = tool(
         .single()
       
       if (error) {
-        console.error('[Tool] Error fetching product:', error)
         return `Error fetching product: ${error.message}`
       }
       
@@ -182,7 +174,6 @@ export const getProductDetails = tool(
         updatedAt: new Date(product.updated_at).toLocaleString()
       }, null, 2)
     } catch (error) {
-      console.error('[Tool] Unexpected error:', error)
       return `Unexpected error: ${error}`
     }
   },

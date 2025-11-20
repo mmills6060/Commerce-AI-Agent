@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useEffect, useState, type FC } from "react";
+import { PropsWithChildren, useEffect, useState, useRef, type FC } from "react";
 import Image from "next/image";
 import { XIcon, PlusIcon, FileText } from "lucide-react";
 import {
@@ -27,24 +27,41 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { cn } from "@/lib/utils";
 
 const useFileSrc = (file: File | undefined) => {
-  const [src, setSrc] = useState<string | undefined>(undefined);
+  const objectUrlRef = useRef<string | undefined>(undefined)
+  const [src, setSrc] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!file) {
-      setSrc(undefined);
-      return;
+      const previousUrl = objectUrlRef.current
+      objectUrlRef.current = undefined
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl)
+      }
+      queueMicrotask(() => setSrc(undefined))
+      return
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setSrc(objectUrl);
+    const previousUrl = objectUrlRef.current
+    const objectUrl = URL.createObjectURL(file)
+    objectUrlRef.current = objectUrl
+    
+    queueMicrotask(() => {
+      if (previousUrl && previousUrl !== objectUrl) {
+        URL.revokeObjectURL(previousUrl)
+      }
+      setSrc(objectUrl)
+    })
 
     return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
+      if (objectUrlRef.current === objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+        objectUrlRef.current = undefined
+      }
+    }
+  }, [file])
 
-  return src;
-};
+  return src
+}
 
 const useAttachmentSrc = () => {
   const { file, src } = useAssistantState(
@@ -145,9 +162,10 @@ const AttachmentUI: FC = () => {
         return "Document";
       case "file":
         return "File";
-      default:
+      default: {
         const _exhaustiveCheck: never = type;
         throw new Error(`Unknown attachment type: ${_exhaustiveCheck}`);
+      }
     }
   });
 

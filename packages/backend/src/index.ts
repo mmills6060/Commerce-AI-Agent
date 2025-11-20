@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
 
-// Load environment variables FIRST before any other imports
 dotenv.config()
 
 import express from 'express'
@@ -12,23 +11,7 @@ const PORT = process.env.PORT || 3001
 
 app.use(cors())
 
-// Request logging middleware
 app.use((req, res, next) => {
-  const timestamp = new Date().toISOString()
-  const method = req.method
-  const url = req.url
-  const ip = req.ip || req.socket.remoteAddress
-  
-  console.log(`[${timestamp}] ${method} ${url} - IP: ${ip}`)
-  
-  // Log response when it finishes
-  const startTime = Date.now()
-  res.on('finish', () => {
-    const duration = Date.now() - startTime
-    const statusCode = res.statusCode
-    console.log(`[${timestamp}] ${method} ${url} - ${statusCode} - ${duration}ms`)
-  })
-  
   next()
 })
 
@@ -44,4 +27,3 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
-

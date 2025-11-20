@@ -66,9 +66,6 @@ const seedProducts = [
 
 async function seedDatabase() {
   try {
-    console.log('Starting database seeding...')
-
-    // Check if products already exist
     const { data: existingProducts, error: checkError } = await supabase
       .from('products')
       .select('id')
@@ -84,35 +81,26 @@ async function seedDatabase() {
       return
     }
 
-    // Insert products
-    console.log(`Inserting ${seedProducts.length} products...`)
     const { data: insertedProducts, error: insertError } = await supabase
       .from('products')
       .insert(seedProducts as any)
       .select()
 
     if (insertError) {
-      console.error('Error inserting products:', insertError)
       throw insertError
     }
 
-    console.log(`Successfully inserted ${insertedProducts?.length || 0} products`)
-    console.log('Database seeding completed!')
   } catch (error) {
-    console.error('Database seeding failed:', error)
     process.exit(1)
   }
 }
 
-// Run seed if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   seedDatabase()
     .then(() => {
-      console.log('Seed process completed')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('Seed process failed:', error)
       process.exit(1)
     })
 }
