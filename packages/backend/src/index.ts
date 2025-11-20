@@ -1,9 +1,11 @@
+import dotenv from 'dotenv'
+
+// Load environment variables FIRST before any other imports
+dotenv.config()
+
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import { apiRouter } from './routes/api.js'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
