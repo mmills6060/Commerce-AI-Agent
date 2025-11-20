@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { handleStreamingChat, handleNonStreamingChat } from '../langgraph/handlers/streaming-handler.js'
+import { handleStreamingChat, handleNonStreamingChat } from '../langchain/handlers/streaming-handler.js'
 import { 
   getAllProducts, 
   getProductById,
