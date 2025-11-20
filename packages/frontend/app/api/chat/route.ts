@@ -54,8 +54,10 @@ export async function POST(req: Request) {
     // Just pass through the stream from backend
     return new Response(backendResponse.body, {
       headers: {
-        "Content-Type": backendResponse.headers.get("Content-Type") || "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
+        "Content-Type": backendResponse.headers.get("Content-Type") || "text/event-stream; charset=utf-8",
+        "Cache-Control": backendResponse.headers.get("Cache-Control") || "no-cache",
+        "Connection": backendResponse.headers.get("Connection") || "keep-alive",
+        "X-Accel-Buffering": "no",
       },
     });
   } catch (error) {

@@ -6,7 +6,7 @@ import { type FC, forwardRef } from "react";
 import { AssistantModalPrimitive } from "@assistant-ui/react";
 
 import { Thread } from "@/components/assistant-ui/thread";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { Button } from "../ui/button";
 
 export const AssistantModal: FC = () => {
   return (
@@ -35,13 +35,12 @@ const AssistantModalButton = forwardRef<
   const tooltip = state === "open" ? "Close Assistant" : "Open Assistant";
 
   return (
-    <TooltipIconButton
+    <Button
       variant="default"
-      tooltip={tooltip}
-      side="left"
-      {...rest}
-      className="aui-modal-button size-full rounded-full shadow transition-transform hover:scale-110 active:scale-90"
+      size="icon-lg"
+      className="shadow transition-transform hover:scale-110 active:scale-90 bg-primary text-primary-foreground"
       ref={ref}
+      {...rest}
     >
       <BotIcon
         data-state={state}
@@ -53,7 +52,7 @@ const AssistantModalButton = forwardRef<
         className="aui-modal-button-open-icon absolute size-6 transition-all data-[state=closed]:scale-0 data-[state=closed]:-rotate-90 data-[state=open]:scale-100 data-[state=open]:rotate-0"
       />
       <span className="aui-sr-only sr-only">{tooltip}</span>
-    </TooltipIconButton>
+    </Button>
   );
 });
 

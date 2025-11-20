@@ -1,8 +1,5 @@
 import { Router } from 'express'
-import { createGraph } from '../langgraph/index.js'
-import OpenAI from 'openai'
-import { streamText } from 'ai'
-import { createOpenAI } from '@ai-sdk/openai'
+import { handleStreamingChat, handleNonStreamingChat } from '../langgraph/handlers/streaming-handler.js'
 import { 
   getAllProducts, 
   getProductById,
@@ -21,18 +18,6 @@ import {
 } from '../db/orders.js'
 
 export const apiRouter = Router()
-
-function getOpenAIClient() {
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-}
-
-function getAISDKProvider() {
-  return createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-}
 
 apiRouter.get('/', (req, res) => {
   res.json({ message: 'API is working' })
@@ -261,9 +246,6 @@ apiRouter.post('/chat', async (req, res) => {
       })
     }
 
-    const provider = getAISDKProvider()
-    const model = provider(process.env.OPENAI_MODEL || 'gpt-4o-mini')
-
     // Transform messages to handle different content formats
     const transformedMessages = messages.map((msg: any) => {
       let content = ''
@@ -307,40 +289,70 @@ apiRouter.post('/chat', async (req, res) => {
 
     console.log('[Backend Chat] Transformed messages:', JSON.stringify(transformedMessages, null, 2))
 
-    const result = streamText({
-      model,
-      messages: transformedMessages,
-    })
+    // Use LangChain agent for chat processing with streaming
+    console.log('[Backend Chat] Starting LangChain stream')
+    
+    // Set up streaming headers
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no') // Disable Nginx buffering
 
-    console.log('[Backend Chat] Streaming with toUIMessageStreamResponse')
+    try {
+      // Stream the agent response
+      const stream = handleStreamingChat(transformedMessages)
+
+      let fullResponse = ''
+
+      for await (const value of stream) {
+        console.log('[Backend Chat] Received stream value:', JSON.stringify({
+          hasStreamedContent: !!value.streamedContent,
+          streamedContent: value.streamedContent?.substring(0, 50),
+          messagesLength: value.messages?.length
+        }))
     
-    // Convert to UI message stream response (for assistant-ui)
-    const response = result.toUIMessageStreamResponse()
-    
-    // Copy headers to Express response
-    response.headers.forEach((value, key) => {
-      res.setHeader(key, value)
-    })
-    
-    // Stream the body
-    if (response.body) {
-      const reader = response.body.getReader()
-      try {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) {
-            res.end()
-            console.log('[Backend Chat] Stream completed')
-            break
-          }
-          res.write(value)
+        // Check for streamed content
+        if (value.streamedContent) {
+          const delta = value.streamedContent
+          fullResponse += delta
+          
+          console.log('[Backend Chat] Sending delta:', JSON.stringify({
+            delta: delta,
+            deltaLength: delta.length
+          }))
+          
+          // Send as Server-Sent Event
+          const sseData = `data: ${JSON.stringify({ type: 'delta', content: delta })}\n\n`
+          res.write(sseData)
         }
-      } catch (error) {
-        console.error('[Backend Chat] Streaming error:', error)
+        
+        // Check if we have a complete message
+        if (value.messages && value.messages.length > 0) {
+          const lastMessage = value.messages[value.messages.length - 1]
+          if (lastMessage.role === 'assistant' && !value.streamedContent) {
+            // This is a complete message
+            console.log('[Backend Chat] Found complete assistant message')
+            fullResponse = lastMessage.content
+          }
+        }
+      }
+
+      // Send final message with complete response
+      res.write(`data: ${JSON.stringify({ type: 'done', content: fullResponse })}\n\n`)
+      res.end()
+      console.log(`[Backend Chat] Stream completed`)
+
+    } catch (streamError) {
+      console.error('[Backend Chat] Streaming error:', streamError)
+      if (!res.headersSent) {
+        res.status(500).json({ 
+          error: 'Failed to stream response',
+          message: streamError instanceof Error ? streamError.message : 'Unknown error'
+        })
+      } else {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: streamError instanceof Error ? streamError.message : 'Unknown error' })}\n\n`)
         res.end()
       }
-    } else {
-      res.end()
     }
 
   } catch (error) {
@@ -350,8 +362,6 @@ apiRouter.post('/chat', async (req, res) => {
         error: 'Failed to process chat request',
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-    } else {
-      res.end()
     }
   }
 })
@@ -380,14 +390,7 @@ apiRouter.post('/langgraph/run', async (req, res) => {
     console.log(`[LangGraph API] Received ${messages.length} messages:`, 
       messages.map(m => ({ role: m.role, contentLength: m.content.length })))
 
-    const graph = createGraph()
-    
-    const initialState = {
-      messages: messages,
-      step: 0
-    }
-
-    const result = await graph.invoke(initialState)
+    const result = await handleNonStreamingChat(messages)
     
     console.log(`[LangGraph API] Returning ${result.messages.length} messages after ${result.step} steps`)
 

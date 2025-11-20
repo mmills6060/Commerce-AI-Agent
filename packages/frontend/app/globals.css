@@ -206,3 +206,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Override assistant-ui button icon width/height constraints */
+/* .aui-button-icon {
+  width: 100%!important;
+  height: 100%!important;
+} */
