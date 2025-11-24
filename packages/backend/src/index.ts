@@ -4,6 +4,7 @@ dotenv.config()
 
 import express, { type Request, type Response } from 'express'
 import cors from 'cors'
+import swaggerUiDist from 'swagger-ui-dist'
 import { apiRouter } from './routes/api.js'
 import { swaggerSpec } from './config/swagger.js'
 
@@ -19,6 +20,9 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+const swaggerUiAssetPath: string = swaggerUiDist.getAbsoluteFSPath()
+app.use('/swagger-ui', express.static(swaggerUiAssetPath))
+
 app.use('/api', apiRouter)
 
 app.get('/api-docs', (req: Request, res: Response) => {
@@ -28,7 +32,7 @@ app.get('/api-docs', (req: Request, res: Response) => {
 <head>
   <meta charset="UTF-8" />
   <title>Commerce AI Agent API Documentation</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css" />
+  <link rel="stylesheet" href="/swagger-ui/swagger-ui.css" />
   <style>
     body {
       margin: 0;
@@ -41,8 +45,8 @@ app.get('/api-docs', (req: Request, res: Response) => {
 </head>
 <body>
   <div id="swagger-ui"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.min.js"></script>
+  <script src="/swagger-ui/swagger-ui-bundle.js"></script>
+  <script src="/swagger-ui/swagger-ui-standalone-preset.js"></script>
   <script>
     window.onload = function () {
       const ui = SwaggerUIBundle({
