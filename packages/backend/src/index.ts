@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-import express from 'express'
+import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { apiRouter } from './routes/api.js'
@@ -22,8 +22,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', apiRouter)
 
-app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
-  const spec = { ...swaggerSpec }
+app.use('/api-docs', swaggerUi.serve, (req: Request, res: Response, next: NextFunction) => {
+  const spec = { ...swaggerSpec } as { servers?: Array<{ url: string; description: string }>; [key: string]: unknown }
   
   if (spec.servers && spec.servers.length > 0) {
     const protocol = req.protocol || 'http'
@@ -49,8 +49,8 @@ app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
   })(req, res, next)
 })
 
-app.get('/api-docs.json', (req, res) => {
-  const spec = { ...swaggerSpec }
+app.get('/api-docs.json', (req: Request, res: Response) => {
+  const spec = { ...swaggerSpec } as { servers?: Array<{ url: string; description: string }>; [key: string]: unknown }
   
   if (spec.servers && spec.servers.length > 0) {
     const protocol = req.protocol || 'http'
