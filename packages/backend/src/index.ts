@@ -22,14 +22,52 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', apiRouter)
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Commerce AI Agent API Documentation'
-}))
+app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
+  const spec = { ...swaggerSpec }
+  
+  if (spec.servers && spec.servers.length > 0) {
+    const protocol = req.protocol || 'http'
+    const host = req.get('host') || 'localhost:3001'
+    const baseUrl = `${protocol}://${host}`
+    
+    spec.servers = [
+      {
+        url: baseUrl,
+        description: 'Current server'
+      },
+      ...spec.servers.filter((s: { url: string }) => s.url !== '/')
+    ]
+  }
+  
+  return swaggerUi.setup(spec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Commerce AI Agent API Documentation',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true
+    }
+  })(req, res, next)
+})
 
 app.get('/api-docs.json', (req, res) => {
+  const spec = { ...swaggerSpec }
+  
+  if (spec.servers && spec.servers.length > 0) {
+    const protocol = req.protocol || 'http'
+    const host = req.get('host') || 'localhost:3001'
+    const baseUrl = `${protocol}://${host}`
+    
+    spec.servers = [
+      {
+        url: baseUrl,
+        description: 'Current server'
+      },
+      ...spec.servers.filter((s: { url: string }) => s.url !== '/')
+    ]
+  }
+  
   res.setHeader('Content-Type', 'application/json')
-  res.send(swaggerSpec)
+  res.send(spec)
 })
 
 app.get('/health', (req, res) => {

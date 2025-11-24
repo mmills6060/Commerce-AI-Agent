@@ -1,5 +1,37 @@
 import swaggerJsdoc from 'swagger-jsdoc'
 
+const getDefaultServerUrl = () => {
+  const apiUrl = process.env.API_URL || process.env.PUBLIC_API_URL
+  if (apiUrl) {
+    return apiUrl.replace(/\/$/, '')
+  }
+  
+  const port = process.env.PORT || '3001'
+  const isProduction = process.env.NODE_ENV === 'production'
+  
+  if (isProduction) {
+    return ''
+  }
+  
+  return `http://localhost:${port}`
+}
+
+const defaultServerUrl = getDefaultServerUrl()
+
+const servers = []
+
+if (defaultServerUrl) {
+  servers.push({
+    url: defaultServerUrl,
+    description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
+  })
+}
+
+servers.push({
+  url: '/',
+  description: 'Current server (relative)'
+})
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
@@ -11,12 +43,7 @@ const options: swaggerJsdoc.Options = {
         name: 'API Support'
       }
     },
-    servers: [
-      {
-        url: 'http://localhost:3001',
-        description: 'Development server'
-      }
-    ],
+    servers,
     components: {
       schemas: {
         Product: {
